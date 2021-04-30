@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html>
 <head>
-	<title>Profile</title>
+	<title>Détails Catégorie article</title>
 	<title>Espace membre</title>
 	<link rel="stylesheet" type="text/css" href="css/bootstrap.min.css">
 	<link rel="stylesheet" type="text/css" href="css/toastr/toastr.min.css">
@@ -15,41 +15,45 @@
 
 	<!--Callout-->
 	<link rel="stylesheet" type="text/css" href="css/callout/callout.css">
+
+    <!--DataTable-->
+    <link rel="stylesheet" type="text/css" href="DataTables/datatables.css">
+
+    <!-- sweetalert-->
+    <link rel="stylesheet" type="text/css" href="sweetalert/sweetalert.css">
+    
 </head>
 
 <body>
 	<style type="text/css">
-		.photo-profile
-		{
-			width: 200px;
-		}
-
-		#image
+	#image
 		{
 			height: 400px;
-		}
-
-		.informations-form, .change-password-form
-		{
-			display: none;
 		}
 
 	</style>
 
 
 	<?php
-		if(isset($_GET['id']) AND $_GET['id'] > 0)
+		if(isset($_GET['id']) AND $_GET['id'] > 0 AND isset($_GET['id_art']) AND $_GET['id_art'] > 0)
 		{
 			//connexion à la base de données 
 			include('connexting_database.php');
 
 			$get_id = $_GET['id']; 
+            $id_art = $_GET['id_art'];
 
 			//on récupère les informations de l'utilisateurs 
 			$get_user = $bdd->prepare("SELECT * FROM user WHERE id = ?");
 			$get_user->execute(array($get_id));
 
 			$infos_user = $get_user->fetch();
+
+            //on récupère les détails d'une catégorie d'article 
+            $get_art = $bdd->prepare("SELECT * FROM article WHERE id = ?");
+            $get_art->execute(array($id_art));
+
+            $info_art = $get_art->fetch();
 
 	?>
 	
@@ -61,137 +65,226 @@
 	
 
 	<div class='container'>
-		<div class="row">
-			<div class="col-md-4">
-				<div class="bs-callout bs-callout-primary text-center">
-					<img class="rounded-circle photo-profile" src="profil/<?php echo $infos_user['profile']; ?>.png">
-					<br><br>
-					<button role="button" class="btn btn-primary" data-toggle="modal" data-target="#modal-profile">Modifier</button>
-				</div>
-			</div>
 
-			<div class="col-md-8">
-				<div class="bs-callout bs-callout-success">
-					<div class="informations">
+        <div class="card">
+            <div class="card-header">
+                <h5>Détails article : <?php echo $info_art['name']; ?></h3>
+            </div>
+            <div class="card-body">
 
-						<div class="row">
-							<div class="col-md-8">
-								Civilité : <?php echo $infos_user['civilite']; ?>
-								<br><br>
-								Nom : <?php echo $infos_user['name']; ?>
-								<br><br>
-								Prénom : <?php echo $infos_user['surname']; ?>
-								<br><br>
-								Date de naissance : <?php echo $infos_user['date_naissance']; ?>
-								<br><br>
-								Adresse : <?php echo $infos_user['adresse']; ?>
-								<br><br>
-								Adresse Email : <?php echo $infos_user['email']; ?>
-							</div>
-							<div class="col-md-4">
-								<button class="btn btn-success btn-block" id="edit-profile">Modifier</button>
-								<button class="btn btn-secondary btn-block" id="edit-password">Modifier le mot de passe</button>
-							</div>
-						</div>
+                <button class="btn btn-primary" data-toggle="modal" data-target="#article-modal">
+                <i class="fa fa-pencil-square-o" aria-hidden="true"></i>
+                    Modifier
+                </button>
+                <button class="btn btn-danger" id="delete-art">
+                <i class="fa fa-trash" aria-hidden="true"></i>
+                    Supprimer
+                </button>
 
-					</div>
+                <div class="row">
+                    <div class="col-md-6">
+                        <div class="bs-callout bs-callout-success">
+                            <div class="row">
+                                <div class="col-md-5">Nom</div>
+                                <div class="col-md-2">:</div>
+                                <div class="col-md-5"><?php echo $info_art['name']; ?></div>   
+                            </div>
 
-					<div class="informations-form">
-							
-						<div class="form-group row">
-						    <label for="inputPassword" class="col-sm-4 col-form-label">Civilité</label>
-						    <div class="col-sm-8">
-						      <select class="custom-select" id="civilite">
-						      	<option value="<?php echo $infos_user['civilite']; ?>" selected=""><?php echo $infos_user['civilite']; ?></option>
-						      	<option value="Monsieur">Monsieur</option>
-						      	<option value="Madame">Madame</option>
-						      </select>
-						    </div>
-						</div>
+                            <br>
 
-						<div class="form-group row">
-						    <label for="inputPassword" class="col-sm-4 col-form-label">Nom</label>
-						    <div class="col-sm-8">
-						      <input type="text" class="form-control" id="nom" value="<?php echo $infos_user['name']; ?>">
-						    </div>
-						</div>
+                            <div class="row">
+                                <div class="col-md-5">Catégorie</div>
+                                <div class="col-md-2">:</div>
+                                <div class="col-md-5" >
+                                    <?php
+                                        $get_name_cat = $bdd->prepare("SELECT * FROM cat_article WHERE id = ?");
+                                        $get_name_cat->execute(array($info_art['id_cat_art']));
+                                        $info_cat_art = $get_name_cat->fetch();
 
-						<div class="form-group row">
-						    <label for="inputPassword" class="col-sm-4 col-form-label">Prénom</label>
-						    <div class="col-sm-8">
-						      <input type="text" class="form-control" id="surname" value="<?php echo $infos_user['surname']; ?>">
-						    </div>
-						</div>
+                                        echo $info_cat_art['name'];
+                                    ?>
+                                </div>   
+                            </div>
 
-						<div class="form-group row">
-						    <label for="inputPassword" class="col-sm-4 col-form-label">Date de naissance</label>
-						    <div class="col-sm-8">
-						      <input type="date" class="form-control" id="date_naissance" value="<?php echo $infos_user['date_naissance']; ?>">
-						    </div>
-						</div>
+                            <br>
 
-						<div class="form-group row">
-						    <label for="inputPassword" class="col-sm-4 col-form-label">Adresse</label>
-						    <div class="col-sm-8">
-						      <textarea class="form-control" rows="3" id="adresse"><?php echo $infos_user['adresse']; ?></textarea>
-						    </div>
-						</div>
+                            <div class="row">
+                                <div class="col-md-5">Prix d'achat</div>
+                                <div class="col-md-2">:</div>
+                                <div class="col-md-5"><?php echo $info_art['prix_achat']; ?> EUR</div>   
+                            </div>
+                            
+                            <br>
 
-						<div class="form-group row">
-						    <label for="inputPassword" class="col-sm-4 col-form-label">Adresse émail</label>
-						    <div class="col-sm-8">
-						      <input type="email" class="form-control" id="emailadresse" value="<?php echo $infos_user['email']; ?>">
-						    </div>
-						</div>
+                            <div class="row">
+                                <div class="col-md-5">Prix de vente</div>
+                                <div class="col-md-2">:</div>
+                                <div class="col-md-5"><?php echo $info_art['prix_vente']; ?> EUR</div>   
+                            </div>
 
-						<div class="btn-group" role="group" aria-label="Basic example">
-						  <button type="button" class="btn btn-success" id="save-info">Enregistrer</button>
-						  <button type="button" class="btn btn-danger cancel-info" >Annuler</button>
-						</div>
-						
+                        </div>
+                    </div>
 
-					</div>
+                    <div class="col-md-6">
+                        <div class="bs-callout bs-callout-success">
 
-					<div class="change-password-form">
+                            <div class="row">
+                                <div class="col-md-5">Nombre en stock</div>
+                                <div class="col-md-2">:</div>
+                                <div class="col-md-5"><?php echo $info_art['stock']; ?></div>   
+                            </div>
 
-						<div class="form-group row">
-							<label for="current-password" class="col-sm-4 col-form-label">Mot de passe actuel</label>
-						    <div class="col-sm-8">
-						      	<input type="password" class="form-control" id="current-password" value="">
-						    </div>
-						</div>
+                            <br>
 
-						<div class="form-group row">
-							<label for="new-password" class="col-sm-4 col-form-label">Nouveau mot de passe</label>
-						    <div class="col-sm-8">
-						      	<input type="password" class="form-control" id="new-password" value="">
-						    </div>
-						</div>
+                            <div class="row">
+                                <div class="col-md-5">Crée le </div>
+                                <div class="col-md-2">:</div>
+                                <div class="col-md-5"><?php echo date('d/m/Y' . ' à ' . 'H:i:s' , strtotime($info_art['createdAt'])); ?></div>   
+                            </div>
 
-						<div class="form-group row">
-							<label for="new-password-confirm" class="col-sm-4 col-form-label">Confirrmation mot de passe</label>
-						    <div class="col-sm-8">
-						      	<input type="password" class="form-control" id="new-password-confirm" value="">
-						    </div>
-						</div>
+                            <br>
 
-						<div class="btn-group" role="group" aria-label="Basic example">
-						  <button type="button" class="btn btn-success" id="save-password">Enregistrer le mot de passe</button>
-						  <button type="button" class="btn btn-danger cancel-info">Annuler</button>
-						</div>
-					</div>
+                            <div class="row">
+                                <div class="col-md-5">Modifié le</div>
+                                <div class="col-md-2">:</div>
+                                <div class="col-md-5"><?php echo date('d/m/Y' . ' à ' . 'H:i:s' , strtotime($info_art['updatedAt']));  ?></div>   
+                            </div>
 
-				</div>
-			</div>
-		</div>
+                            <br>
+
+                            <div class="row">
+                                <div class="col-md-5">Ajouté par</div>
+                                <div class="col-md-2">:</div>
+                                <div class="col-md-5" >
+                                    <?php
+                                        $get_name_user = $bdd->prepare("SELECT * FROM user WHERE id = ?");
+                                        $get_name_user->execute(array($info_art['id_user']));
+                                        $info_user = $get_name_user->fetch();
+
+                                        echo $info_user['name'] . ' ' . $info_user['surname'];
+                                    ?>
+                                </div>   
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="bs-callout bs-callout-success">
+                    <img src="images/articles/<?php echo $info_art['photo']?>.png" alt="" class="rounded-circle" width="150">
+                    &nbsp;&nbsp;
+                    <button class="btn btn-primary" data-toggle="modal" data-target="#modal-image-article">
+                        Modifier l'image
+                    </button>
+                </div>
+                
+
+                
+            </div>
+        </div>
+
+        
 	</div>
 
-	<!-- Modal -->
-	<div class="modal fade" id="modal-profile" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+    <!-- Modal -->
+    <div class="modal fade" id="article-modal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="exampleModalLabel">Modifier un article</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                
+                <form id="cat-article-form">
+                    <div class="form-group row">
+                        <label for="name-article" class="col-sm-4 col-form-label">Nom</label>
+						<div class="col-sm-8">
+							<input type="text" class="form-control" value="<?php echo $info_art['name']; ?>" id="name-article" name="name-article" placeholder="Nom de l'article">
+						</div>
+                    </div>
+
+					<div class="form-group row">
+                        <label for="cat-article" class="col-sm-4 col-form-label">Catégorie d'articles</label>
+						<div class="col-sm-8">
+							<select name="cat-article" id="cat-article" class="custom-select">
+
+                                <?php
+                                    $get_default_cat = $bdd->prepare("SELECT * FROM cat_article WHERE id = ?");
+                                    $get_default_cat->execute(array($info_art['id_cat_art']));
+                                    $cat_name_info = $get_default_cat->fetch();
+                                ?>
+								    <option value="<?php echo $cat_name_info['id']; ?>" selected><?php echo $cat_name_info['name']; ?></option>
+
+								<?php
+									
+									//on récupère toutes les catégories d'articles de l'utilisateurs
+									$view_cat_art = $bdd->prepare("SELECT * FROM cat_article WHERE id_user = ?");
+									$view_cat_art->execute(array($get_id));
+
+									while($rows_cat = $view_cat_art->fetch())
+                            		{
+								?>	
+										<option value="<?php echo $rows_cat['id']; ?>"><?php echo $rows_cat['name']; ?></option>
+								<?php
+									}
+								?>
+
+							</select>
+						</div>
+                    </div>
+
+					<div class="form-group row">
+                        <label for="prix-achat-article" class="col-sm-4 col-form-label">Prix d'achat</label>
+						<div class="col-sm-8">
+							<div class="input-group mb-3">
+								<input type="text" class="form-control" value="<?php echo $info_art['prix_achat']; ?>" id="prix-achat-article" name="prix-achat-article" placeholder="0.00">
+								<div class="input-group-append">
+									<span class="input-group-text" id="basic-addon2">EUR</span>
+								</div>
+							</div>
+						</div>
+                    </div>
+
+					<div class="form-group row">
+                        <label for="prix-vente-article" class="col-sm-4 col-form-label">Prix de vente</label>
+						<div class="col-sm-8">
+							<div class="input-group mb-3">
+								<input type="text" class="form-control" value="<?php echo $info_art['prix_vente']; ?>" id="prix-vente-article" name="prix-vente-article" placeholder="0.00">
+								<div class="input-group-append">
+									<span class="input-group-text" id="basic-addon2">EUR</span>
+								</div>
+							</div>
+						</div>
+                    </div>
+
+					<div class="form-group row">
+                        <label for="stock-article" class="col-sm-4 col-form-label">Nombre en Stock</label>
+						<div class="col-sm-8">
+							<input type="text" class="form-control" value="<?php echo $info_art['stock']; ?>" id="stock-article" name="stock-article" placeholder="0">
+						</div>
+                    </div>
+
+                </form>
+
+
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">Fermer</button>
+                <button type="button" class="btn btn-primary" id="save-article">Enregistrer</button>
+            </div>
+            </div>
+        </div>
+    </div>
+
+
+    <!-- Modal -->
+	<div class="modal fade" id="modal-image-article" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
 	  <div class="modal-dialog">
 	    <div class="modal-content">
 	      <div class="modal-header">
-	        <h5 class="modal-title" id="exampleModalLabel">Modifier la photo de profile</h5>
+	        <h5 class="modal-title" id="exampleModalLabel">Modifier l'image de l'article</h5>
 	        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
 	          <span aria-hidden="true">&times;</span>
 	        </button>
@@ -199,7 +292,7 @@
 	      <div class="modal-body">
 	        
 	      	<div class="img-container1">
-		        <img id="image" src="profil/<?php echo $infos_user['profile']; ?>.png" alt="Picture">
+		        <img id="image" src="images/articles/<?php echo $info_art['photo']; ?>.png" alt="Picture">
 		    </div>
 
 		    <label>&nbsp;</label>
@@ -301,6 +394,8 @@
 	</div>
 
 
+
+
 	<script type="text/javascript" src="js/jquery/jquery.min.js"></script>
 	<script type="text/javascript" src="js/bootstrap.min.js"></script>
 	<script type="text/javascript" src="js/toastr/toastr.min.js"></script>
@@ -308,152 +403,150 @@
 	<script type="text/javascript" src="cropper/js/cropper.js"></script>
 	<!--<script type="text/javascript" src="cropper/js/custom.js"></script>-->
 
+    <!--DataTables-->
+    <script type="text/javascript" src="DataTables/datatables.js"></script>
+
+    <!-- sweetalert-->
+    <script type="text/javascript" src="sweetalert/sweetalert.min.js"></script>
+
 	<script type="text/javascript">
+        
+        //l'id de l'utilisateur
+        var get_id = "<?php echo $get_id ?>";
+        var id_art = "<?php echo $id_art; ?>";
+
+        //mise à jour  d'un article
+        $('#save-article').click(function(){
+            
+            var name_article = $('#name-article').val();
+			var cat_article = $('#cat-article').val();
+			var prix_achat_article = $('#prix-achat-article').val();
+			var prix_vente_article = $('#prix-vente-article').val();
+			var stock_article = $('#stock-article').val();
 
 
-		$('#edit-profile').click(function()
-			{
-				$('.informations').css('display', 'none');
-				$('.informations-form').css('display', 'block');
-			});
+            if(name_article != "")
+            {
+                $('#name-article').removeClass('is-invalid');
 
-		$('.cancel-info').click(function()
-			{
-				$('.informations').css('display', 'block');
-				$('.informations-form').css('display', 'none');
-				$('.change-password-form').css('display', 'none');
-			});
-		
-		$('#edit-password').click(function()
-			{
-				$('.informations').css('display', 'none');
-				$('.change-password-form').css('display', 'block');
-			});
-		
-
-		$('#save-password').click(function(){
-			
-			var current_pwd = $('#current-password').val();
-			var new_pwd = $('#new-password').val();
-			var new_pwd_confirm = $('#new-password-confirm').val();
-			var taille_pwd = new_pwd.length;
-			var user_id = "<?php echo $get_id; ?>";
-
-			if(taille_pwd > 8)
-			{
-				$('#new-password').removeClass('is-invalid');
-				
-				if(new_pwd == new_pwd_confirm)
+				if(cat_article != "")
 				{
-					$('#new-password-confirm').removeClass('is-invalid');
+					$('#cat-article').removeClass('is-invalid');
 
-					$.ajax({
-						type:'POST', 
-						url:'update_password.php',
-						data:'user_id=' + user_id + '&new_pwd='+ new_pwd + '&current_pwd=' + current_pwd,
-						success:function(data)
+					if(prix_achat_article != "" && (/^[0-9]*[.][0-9]+$/.test(prix_achat_article) || /^[0-9]+$/.test(prix_achat_article)))
+					{
+						$('#prix-achat-article').removeClass('is-invalid');
+
+						if(prix_vente_article != "" && (/^[0-9]*[.][0-9]+$/.test(prix_vente_article) || /^[0-9]+$/.test(prix_vente_article)))
 						{
-							if(data == "success")
-							{
-								valide("Mot de passe enregistré avec succès!");
+							$('#prix-vente-article').removeClass('is-invalid');
 
-								setTimeout(function(){
-									location.reload();
-								}, 5000);
+							if(stock_article != "" && /^[0-9]+$/.test(stock_article))
+							{
+								$('#stock-article').removeClass('is-invalid');
+
+								$.ajax({
+									type : 'POST', 
+									url : 'update_article.php', 
+									data: 	'name_article=' + name_article + '&cat_article=' + cat_article + '&prix_achat_article=' + prix_achat_article + 
+											'&prix_vente_article=' + prix_vente_article + '&stock_article=' + stock_article + '&id_art=' + id_art +'&get_id=' + get_id,
+									success:function(data)
+									{
+										if(data == "success")
+										{
+											$('#article-modal').modal('hide');
+
+											valide("Article modifié avec succès!");
+
+											setTimeout(function(){
+														location.reload();
+													}, 5000);
+										}
+										else
+										{
+											error("Erreur lors de l'enregistrement l'article!")
+										}
+									}
+								});
+
+
 							}
 							else
 							{
-								error("Le mot de saisie ne correspond pas au mot de passe actuel!");
-								$('#current-password').addClass('is-invalid');
+								error("stock invalide!");
+                				$('#stock-article').addClass('is-invalid');
 							}
-						}
-					});
-				}
-				else
-				{
-					error("Les 2 mot de passes doivent correspondre!");
-					$('#new-password-confirm').addClass('is-invalid');
-				}
-			}
-			else
-			{
-				error("Le nouveau mot de passe doit contenir au moins 8 caractères!");
-				$('#new-password').addClass('is-invalid');
-			}
-		});
-
-		//Enregistrement des informations de profil
-		$('#save-info').click(function(){
-
-			var civilite = $('#civilite').val();
-			var nom = $('#nom').val();
-			var surname = $('#surname').val();
-			var date_naissance = $('#date_naissance').val();
-			var adresse = $('#adresse').val();
-			var emailadresse = $('#emailadresse').val();
-			var user_id = "<?php echo $get_id; ?>";
-
-			if(nom != "")
-			{
-				$("#nom").removeClass("is-invalid");
-
-				if(surname != "")
-				{
-					$("#surname").removeClass("is-invalid");
-
-					if(adresse != "")
-					{
-						$("#removeClass").addClass("is-invalid");
-
-						if(emailadresse != "")
-						{
-							$("#emailadresse").removeClass("is-invalid");
-							
-							$.ajax({
-								type : 'POST', 
-								url: 'update_user.php', 
-								data: 	'user_id=' + user_id + '&civilite=' + civilite + 
-										'&nom=' + nom + '&surname=' + surname + 
-										'&date_naissance=' + date_naissance + 
-										'&adresse=' + adresse + '&emailadresse=' + emailadresse,
-								success:function(data)
-								{
-									valide("Informations enregistrées avec succès!");
-
-									setTimeout(function(){
-										location.reload();
-									}, 5000);
-								}
-							});
 						}
 						else
 						{
-							$("#emailadresse").addClass("is-invalid");
-							error("L'adresse émail ne doit être vide!");
+							error("Prix de vente invalide!");
+                			$('#prix-vente-article').addClass('is-invalid');
 						}
-					}	
+					}
 					else
 					{
-						$("#adresse").addClass("is-invalid");
-						error("L'adresse ne doit être vide!");
+						error("Prix d'achat invalide!");
+                		$('#prix-achat-article').addClass('is-invalid');
 					}
 				}
 				else
 				{
-					$("#surname").addClass("is-invalid");
-					error("Le prénom ne doit être vide!");
+					error("Veuillez au moins séléctionner une catégorie!");
+                	$('#cat-article').addClass('is-invalid');
 				}
-			}
-			else
-			{
-				$("#nom").addClass("is-invalid");
-				error("Le nom ne doit être vide!");
-			}
-		});
+            }   
+            else
+            {
+                error("Le nom de l'article ne doit pas être vide!");
+                $('#name-article').addClass('is-invalid');
+            }
+        });
 
 
+        //supprimer un aticle
+        $('#delete-art').click(function(){
 
-		cropperpage();
+            swal({
+                title: "Confirmation!", 
+                text: "Voulez-vous vraiment supprimer cet article ?",
+                showCancelButton: true,
+                confirmButtonColor: "#28a745",
+                confirmButtonText: "YES",
+                cancelButtonText: "NO",
+                closeOnConfirm: false
+            }, function(){
+                
+                deleteArt();
+
+                swal({
+                    title: "Succès !",
+                    text: "Articles supprimé avec succès!",
+                    type: "success",
+                    confirmButtonColor: "#28a745",
+                }, function(){
+
+                    window.location = 'article.php?id=' + get_id;
+                });
+                
+            });
+        });
+
+        //suppression d'une article
+        function deleteArt()
+        {
+            $.ajax({
+                type : 'POST',
+                url: 'delete_art.php', 
+                data: 'id_art=' + id_art,
+                success:function(data)
+                {
+                    //rien à afficher
+                }
+            });
+        }
+
+        cropperpage();
+
 		function cropperpage()
 		{
 		  // Methods cropper
@@ -633,20 +726,22 @@
 		              //$('#getCroppedCanvasModal').modal().find('.modal-body').html(result);
 
 		              var image = result.toDataURL(uploadedImageType);
-		              var getid = "<?php echo $get_id; ?>"
+
 
 		              //rognage de l'image
 		              $.ajax(
 		                {
 		                  type  : 'POST', 
-		                  url   : 'save_profile.php',
+		                  url   : 'save_photo_image.php',
 		                  data  : {
-		                    base64 : image, getid : getid
+		                    base64 : image, id_art : id_art
 		                  },
 		                  success:function(donnee)
 		                  {
 		                  	//alert(donnee);
-		                  	valide("Photo de profile enregistrée avec succès.");
+                            $('#modal-image-article').modal('hide');
+                            
+		                  	valide("L'image de l'article a été enregistré avec succès.");
 		                  	
 		                    setTimeout(function()
 		                      {
@@ -750,7 +845,7 @@
 		}
 
 
-		//message toastr d'erreur
+        //message toastr d'erreur
 			function error(element)
 			{
 			    toastr.error(element,'Erreur',{

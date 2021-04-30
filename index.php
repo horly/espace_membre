@@ -6,13 +6,11 @@
 	<link rel="stylesheet" type="text/css" href="css/toastr/toastr.min.css">
 </head>
 <body>
-	<nav class="navbar navbar-expand-lg navbar-dark bg-dark text-white">
-	  <a class="navbar-brand" href="#"><b>ESPACE MEMBRE</b></a>
-	  <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
-	    <span class="navbar-toggler-icon"></span>
-	  </button>
-	</nav>
-	<br>
+	
+			<?php 
+					//inclure la navbar
+					include ("navbar.php");
+			?>
 
 	<div class="container">
 		<div class="row">
